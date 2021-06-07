@@ -24,7 +24,7 @@ import net.mamoe.mirai.utils.MiraiExperimentalApi
  * 用于中转各类 `RequestEvent` 的数据体,
  * 未来可能会添加新字段
  *
- * @since 2.7-M2
+ * @since 2.7
  */
 @MiraiExperimentalApi
 @Serializable
@@ -232,4 +232,3 @@ public /*data*/ class RequestEventData(
         }
     }
 }
-
