@@ -9,7 +9,10 @@
 
 package net.mamoe.mirai.internal.test
 
+import kotlinx.coroutines.sync.Mutex
 import net.mamoe.mirai.IMirai
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.util.concurrent.TimeUnit
@@ -30,11 +33,23 @@ abstract class AbstractTest {
 
     }
 
+    @BeforeEach
+    fun getLock() {
+        runBlockingUnit { lock.lock() }
+    }
+
+    @AfterEach
+    fun releaseLock() {
+        lock.unlock()
+    }
+
     companion object {
         init {
             Exception() // create a exception to load relevant classes to estimate invocation time of test cases more accurately.
             IMirai::class.simpleName // similarly, load classes.
         }
+
+        private val lock = Mutex()
     }
 }
 
