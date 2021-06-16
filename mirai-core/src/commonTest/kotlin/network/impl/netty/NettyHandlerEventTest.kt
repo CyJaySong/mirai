@@ -121,7 +121,7 @@ internal class NettyHandlerEventTest : AbstractNettyNHTest() {
 
     @Test
     fun testPreconditions() = runBlockingUnit {
-        assertEventBroadcasts<Event>(1) { BotOfflineEvent.Active(bot, null).broadcast() }
+        assertEventBroadcasts<Event>(1) { BotOfflineEvent.Active(bot, Error("testPreconditions")).broadcast() }
     }
 
     @Test
