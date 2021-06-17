@@ -9,7 +9,7 @@
 
 package net.mamoe.mirai.internal.network.handler
 
-import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -24,6 +24,7 @@ import net.mamoe.mirai.internal.network.protocol.packet.IncomingPacket
 import net.mamoe.mirai.internal.network.protocol.packet.OutgoingPacket
 import net.mamoe.mirai.utils.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
@@ -200,7 +201,7 @@ internal abstract class NetworkHandlerSupport(
     private val _stateChannel = Channel<NetworkHandler.State>(0)
     final override val stateChannel: ReceiveChannel<NetworkHandler.State> get() = _stateChannel
 
-    private val setStateLock = SynchronizedObject()
+    private val setStateLock = ReentrantLock()
 
     protected data class StateSwitchingException(
         val old: BaseStateImpl,
@@ -249,7 +250,7 @@ internal abstract class NetworkHandlerSupport(
      */
     //
     @TestOnly
-    internal fun <S : BaseStateImpl> setStateImpl(newType: KClass<S>?, new: () -> S): S? = synchronized(setStateLock) {
+    internal fun <S : BaseStateImpl> setStateImpl(newType: KClass<S>?, new: () -> S): S? = setStateLock.withLock {
         val rand = Random.nextInt()
 
         val old = _state
