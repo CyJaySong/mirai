@@ -254,7 +254,7 @@ internal abstract class NetworkHandlerSupport(
         val rand = Random.nextInt()
 
         val old = _state
-        println("${this.hashCode()} setStateImpl $rand into: old=${old::class.simpleName}, new=${newType?.simpleName}")
+        println("[setStateImpl] thread=${Thread.currentThread().name} this=${this.hashCode()} rand=$rand into: old=${old::class.simpleName}, new=${newType?.simpleName}")
         if (newType != null && old::class == newType) return null // already set to expected state by another thread. Avoid replications.
         if (old.correspondingState == NetworkHandler.State.CLOSED) return null // CLOSED is final.
 
