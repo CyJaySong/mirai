@@ -15,6 +15,7 @@ import net.mamoe.mirai.event.events.BotOfflineEvent
 import net.mamoe.mirai.internal.AbstractBot
 import net.mamoe.mirai.internal.network.components.BotOfflineEventMonitor
 import net.mamoe.mirai.internal.network.handler.NetworkHandler.State.*
+import net.mamoe.mirai.internal.network.handler.state.LoggingStateObserver
 import net.mamoe.mirai.internal.network.handler.state.StateObserver
 import net.mamoe.mirai.internal.test.assertEventBroadcasts
 import net.mamoe.mirai.internal.test.runBlockingUnit
@@ -67,6 +68,7 @@ internal class SetStateTest : AbstractNettyNHTest() {
 
     @Test
     fun `setState should ignore duplications 2 OK to CLOSED to CLOSED`() = runBlockingUnit {
+        LoggingStateObserver.ENABLED = "true"
         overrideComponents[BotOfflineEventMonitor] = object : BotOfflineEventMonitor {
             override fun attachJob(bot: AbstractBot, scope: CoroutineScope) {
             }
