@@ -26,6 +26,7 @@ import net.mamoe.mirai.utils.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.random.Random
 import kotlin.reflect.KClass
 
 /**
@@ -249,8 +250,10 @@ internal abstract class NetworkHandlerSupport(
     //
     @TestOnly
     internal fun <S : BaseStateImpl> setStateImpl(newType: KClass<S>?, new: () -> S): S? = synchronized(setStateLock) {
+        val rand = Random.nextInt()
+
         val old = _state
-        println("setStateImpl: old=${old::class.simpleName}, new=${newType?.simpleName}")
+        println("setStateImpl $rand into: old=${old::class.simpleName}, new=${newType?.simpleName}")
         if (newType != null && old::class == newType) return null // already set to expected state by another thread. Avoid replications.
         if (old.correspondingState == NetworkHandler.State.CLOSED) return null // CLOSED is final.
 
@@ -270,6 +273,7 @@ internal abstract class NetworkHandlerSupport(
         old.cancel(StateSwitchingException(old, impl)) // close old
         stateObserver?.stateChanged(this, old, impl) // notify observer
         _stateChannel.trySend(impl.correspondingState) // notify selector
+        println("setStateImpl $rand exit: old=${old::class.simpleName}, new=${newType?.simpleName}")
 
         return impl
     }
