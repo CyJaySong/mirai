@@ -265,13 +265,20 @@ internal abstract class NetworkHandlerSupport(
         val rand = Random.nextInt()
 
         val old = _state
-        println("[setStateImpl] thread=${Thread.currentThread().name} this=${this.hashCode()} rand=$rand into: old=${old::class.simpleName}, new=${newType?.simpleName}")
+
+        fun debug(msg:Any) {
+            println("[setStateImpl] thread=${Thread.currentThread().name} this=${this.hashCode()} rand=$rand: $msg")
+        }
+        debug("into: old=${old::class.simpleName}, new=${newType?.simpleName}, old.correspondingState=${old.correspondingState}")
+
         if (newType != null && old::class == newType) return null // already set to expected state by another thread. Avoid replications.
         if (old.correspondingState == NetworkHandler.State.CLOSED) return null // CLOSED is final.
 
         val stateObserver = context.getOrNull(StateObserver)
+        debug("stateObserver = $stateObserver # ${stateObserver.hashCode()}")
 
         val impl = try {
+            debug("Begin allocate new state....")
             new() // inline only once
         } catch (e: Throwable) {
             System.err.println("Allocate new state")
@@ -279,12 +286,17 @@ internal abstract class NetworkHandlerSupport(
             stateObserver?.exceptionOnCreatingNewState(this, old, e)
             throw e
         }
+        debug("Allocated new state: $impl")
 
         check(old !== impl) { "Old and new states cannot be the same." }
 
         stateObserver?.beforeStateChanged(this, old, impl)
+
+        debug("Updated `_state` field")
         _state = impl // update current state
+        debug("Fire  `old.cancel()`")
         old.cancel(StateSwitchingException(old, impl)) // close old
+        debug("Fired `old.cancel()`")
         stateObserver?.stateChanged(this, old, impl) // notify observer
         _stateChannel.trySend(impl.correspondingState) // notify selector
         println("${this.hashCode()} setStateImpl $rand exit: old=${old::class.simpleName}, new=${newType?.simpleName}")
