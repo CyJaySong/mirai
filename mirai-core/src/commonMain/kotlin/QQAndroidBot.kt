@@ -41,7 +41,9 @@ import net.mamoe.mirai.internal.network.handler.state.safe
 import net.mamoe.mirai.internal.network.impl.netty.ForceOfflineException
 import net.mamoe.mirai.internal.network.impl.netty.NettyNetworkHandlerFactory
 import net.mamoe.mirai.internal.utils.subLogger
-import net.mamoe.mirai.utils.*
+import net.mamoe.mirai.utils.BotConfiguration
+import net.mamoe.mirai.utils.MiraiLogger
+import net.mamoe.mirai.utils.lateinitMutableProperty
 import kotlin.contracts.contract
 
 internal fun Bot.asQQAndroidBot(): QQAndroidBot {
@@ -110,6 +112,7 @@ internal open class QQAndroidBot constructor(
                     }
                     else -> {
                         // any other unexpected exceptions considered as an error
+                        Exception("ShowStacktrace").printStackTrace()
                         eventDispatcher.broadcastAsync(BotOfflineEvent.Active(bot, cause))
                     }
                 }
