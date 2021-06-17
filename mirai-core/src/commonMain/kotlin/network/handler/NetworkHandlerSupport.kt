@@ -250,6 +250,7 @@ internal abstract class NetworkHandlerSupport(
     @TestOnly
     internal fun <S : BaseStateImpl> setStateImpl(newType: KClass<S>?, new: () -> S): S? = synchronized(setStateLock) {
         val old = _state
+        println("setStateImpl: old=${old::class.simpleName}, new=${newType?.simpleName}")
         if (newType != null && old::class == newType) return null // already set to expected state by another thread. Avoid replications.
         if (old.correspondingState == NetworkHandler.State.CLOSED) return null // CLOSED is final.
 
