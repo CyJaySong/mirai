@@ -15,6 +15,7 @@ import net.mamoe.mirai.event.events.BotOfflineEvent
 import net.mamoe.mirai.internal.AbstractBot
 import net.mamoe.mirai.internal.network.components.BotOfflineEventMonitor
 import net.mamoe.mirai.internal.network.handler.NetworkHandler.State.*
+import net.mamoe.mirai.internal.network.handler.state.StateObserver
 import net.mamoe.mirai.internal.test.assertEventBroadcasts
 import net.mamoe.mirai.internal.test.runBlockingUnit
 import org.junit.jupiter.api.Test
@@ -70,6 +71,7 @@ internal class SetStateTest : AbstractNettyNHTest() {
             override fun attachJob(bot: AbstractBot, scope: CoroutineScope) {
             }
         }
+        println(bot.components[StateObserver].toString())
         assertNotNull(network.setStateOK(channel))
         assertState(OK)
         assertEventBroadcasts<Event> {
