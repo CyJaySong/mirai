@@ -250,7 +250,18 @@ internal abstract class NetworkHandlerSupport(
      */
     //
     @TestOnly
-    internal fun <S : BaseStateImpl> setStateImpl(newType: KClass<S>?, new: () -> S): S? = setStateLock.withLock {
+    internal fun <S : BaseStateImpl> setStateImpl(newType: KClass<S>?, new: () -> S): S? {
+        try {
+            return setStateImpl0(newType, new)
+        } catch (e: Throwable) {
+            System.err.println("internal fun <S : BaseStateImpl> setStateImpl(newType: KClass<S>?, new: () -> S): S?")
+            e.printStackTrace()
+            throw e
+        }
+    }
+
+    // TODO: Revert debug code
+    private fun <S : BaseStateImpl> setStateImpl0(newType: KClass<S>?, new: () -> S): S? = setStateLock.withLock {
         val rand = Random.nextInt()
 
         val old = _state
@@ -263,6 +274,8 @@ internal abstract class NetworkHandlerSupport(
         val impl = try {
             new() // inline only once
         } catch (e: Throwable) {
+            System.err.println("Allocate new state")
+            e.printStackTrace()
             stateObserver?.exceptionOnCreatingNewState(this, old, e)
             throw e
         }
