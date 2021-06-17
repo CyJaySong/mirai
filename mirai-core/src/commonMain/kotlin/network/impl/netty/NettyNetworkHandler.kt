@@ -378,9 +378,6 @@ internal open class NettyNetworkHandler(
     protected inner class StateClosed(
         val exception: Throwable?
     ) : NettyState(State.CLOSED) {
-        init {
-            closeSuper(exception)
-        }
 
         override fun getCause(): Throwable? = exception
         override suspend fun sendPacketImpl(packet: OutgoingPacket) = error("NetworkHandler is already closed.")
