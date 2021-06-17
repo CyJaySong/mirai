@@ -49,6 +49,10 @@ internal abstract class NetworkHandlerSupport(
     }
 
     override fun close(cause: Throwable?) {
+        realClose(cause)
+    }
+
+    protected fun realClose(cause: Throwable?) {
 //        if (cause == null) {
 //            logger.info { "NetworkHandler '$this' closed" }
 //        } else {
@@ -266,7 +270,7 @@ internal abstract class NetworkHandlerSupport(
 
         val old = _state
 
-        fun debug(msg:Any) {
+        fun debug(msg: Any) {
             println("[setStateImpl] thread=${Thread.currentThread().name} this=${this.hashCode()} rand=$rand: $msg")
         }
         debug("into: old=${old::class.simpleName}, new=${newType?.simpleName}, old.correspondingState=${old.correspondingState}")
@@ -294,6 +298,9 @@ internal abstract class NetworkHandlerSupport(
 
         debug("Updated `_state` field")
         _state = impl // update current state
+        if (impl.correspondingState == NetworkHandler.State.CLOSED) {
+            realClose(impl.getCause())
+        }
         debug("Fire  `old.cancel()`")
         old.cancel(StateSwitchingException(old, impl)) // close old
         debug("Fired `old.cancel()`")
